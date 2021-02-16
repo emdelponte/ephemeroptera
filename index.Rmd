@@ -182,27 +182,7 @@ ggplotly(p_family)
 
 ```
 
-### <i class="fa fa-chart-bar" aria-hidden="true"></i> Chart strains by Species
 
-```{r}
-library(janitor)
-
-p_py <- dat1 %>% 
-  
-  tabyl(species_name) %>% 
-    ggplot(aes(reorder(species_name, n), n))+
-geom_col(fill = "#558796")+
-  theme_minimal()+
-  coord_flip()+
-  theme(legend.position = "none", plot.margin = margin(2, 2, 2, 2, "cm"))+
-  labs(x = "", y = "Number of records", title = "Species")
-  
-ggplotly(p_py)
-  
-  
-
-
-```
 
 
 About this dashboard
