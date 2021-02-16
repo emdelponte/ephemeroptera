@@ -1,0 +1,225 @@
+---
+title: "Ephemeroptera from Brazil"
+output: 
+  flexdashboard::flex_dashboard:
+    
+    source_code: embed
+    theme: united
+    social: menu
+    css: style2.css
+    
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+library(flexdashboard)
+library(tidyverse)
+library(crosstalk)
+library(plotly)
+library(viridis)
+library(gsheet)
+library(leaflet.providers)
+library(leaflet)
+library(DT)
+library(janitor)
+```
+
+
+
+```{r load data, message=FALSE, warning=FALSE, include=FALSE}
+Sys.setlocale("LC_ALL", "pt_BR.UTF-8")
+
+
+dat1 <- gsheet2tbl("https://docs.google.com/spreadsheets/d/1_FKOEwXyNBgc8MnzMVoQvFsl1Llae_VGNjgj5K0CaH8/edit?usp=sharing")
+
+
+
+
+set.seed(1000)
+dat1$lat <- round(jitter(dat1$lat, factor = 1, amount = 0.001), 4)
+dat1$lon <- round(jitter(dat1$lon, factor = 1, amount = 0.001), 4)
+
+```
+
+
+
+```{r all table, echo=FALSE}
+sd <- SharedData$new(dat1)
+
+```
+
+
+Dashboard 
+============
+
+
+Column {.sidebar}
+-------------------------------------
+
+
+
+### Quick filter
+
+
+```{r}
+filter_slider("year_record", "Restrict to years", sd, ~year_record)
+filter_select("family", "Select Family", sd, ~family)
+filter_select("genera", "Select Genera", sd, ~genera)
+filter_select("species_name", "Select Species name", sd, ~species_name)
+filter_checkbox("present_today", "Present today?", sd, ~ present_today, 
+                inline = FALSE)
+
+```
+
+
+Column {.tabset}
+-------------------------------------
+
+
+### <i class="fa fa-map" aria-hidden="true"></i> Map strains
+
+```{r}
+library(RColorBrewer)
+library(htmltools)
+pal <- colorFactor("Set3", domain = c("Baetidae",
+"Caenidae",
+"Coryphoridae",
+"Ephemeridae",
+"Euthyplociidae",
+"Leptohyphidae",
+"Leptophlebiidae",
+"Melanemerellidae",
+"Oligoneuriidae",
+"Polymitarcyidae"))
+
+leaflet(data = sd, width = "100%") %>%
+ # setView(-46.8, -20.40, zoom = 7) %>%
+  addProviderTiles("Esri.WorldImagery", group = "Aerial") %>%
+  addProviderTiles("OpenTopoMap", group = "Terrain") %>%
+  addScaleBar("bottomright") %>%
+  addProviderTiles(providers$CartoDB.Voyager, group = "Default") %>%
+  addLayersControl(
+    baseGroups = c("Default", "Aerial", "Terrain"),
+    
+    options = layersControlOptions(collapsed = T)
+  ) %>%
+  addCircleMarkers(
+  
+    radius = 6,
+    fillOpacity = 1,
+    weight = 0.5,
+    label = paste(dat1$family, "- Details"),
+    fillColor = ~ pal(family),
+
+  ) %>%
+  addLegend("bottomleft",
+    pal = pal,
+    values = ~family,
+    title = "Family",
+    opacity = 1
+  ) %>% 
+  
+  addMeasure(
+    position = "bottomleft",
+    primaryLengthUnit = "meters",
+    primaryAreaUnit = "sqmeters",
+    activeColor = "#3D535D",
+    completedColor = "#7D4479") %>% 
+  addEasyButton(easyButton(
+    icon="fa-globe", title="Zoom to Level 3",
+    onClick=JS("function(btn, map){ map.setZoom(3); }"))) 
+```
+
+
+### <i class="fa fa-table" aria-hidden="true"></i> View grid display
+
+
+```{r}
+dat_table <- dat1 %>% 
+  select(year_record, family, genera, species_name, author, present_today, state, municipality)
+                
+    
+    
+  
+datatable(dat_table,
+  extensions = c("Buttons", "ColReorder"),
+  escape = FALSE, rownames = FALSE,
+  class = "cell-border stripe",
+ 
+)
+```
+
+
+
+### <i class="fa fa-chart-bar" aria-hidden="true"></i> Chart by host
+
+
+
+```{r}
+
+
+p_family <- dat1 %>% 
+  tabyl(family) %>% 
+  ggplot(aes(reorder(family, n), n))+
+  geom_col(fill = "#558796")+
+  theme_minimal()+
+  coord_flip()+
+  theme(legend.position = "none", 
+        plot.margin = margin(2, 2, 2, 2, "cm"))+
+  labs(x = "", y = "Number of records", title = "Family")
+  
+ggplotly(p_family)
+  
+  
+
+
+```
+
+### <i class="fa fa-chart-bar" aria-hidden="true"></i> Chart strains by Species
+
+```{r}
+library(janitor)
+
+p_py <- dat1 %>% 
+  
+  tabyl(species_name) %>% 
+    ggplot(aes(reorder(species_name, n), n))+
+geom_col(fill = "#558796")+
+  theme_minimal()+
+  coord_flip()+
+  theme(legend.position = "none", plot.margin = margin(2, 2, 2, 2, "cm"))+
+  labs(x = "", y = "Number of records", title = "Species")
+  
+ggplotly(p_py)
+  
+  
+
+
+```
+
+
+About this dashboard
+============
+
+
+
+Column {.tabset}
+-------------------------------------
+
+
+### About this database
+
+
+### How to use it
+
+
+Under development.
+
+
