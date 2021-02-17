@@ -4,7 +4,7 @@ output:
   flexdashboard::flex_dashboard:
     
     source_code: embed
-    theme: united
+    theme: spacelab
     social: menu
     css: style2.css
     
@@ -100,7 +100,7 @@ pal <- colorFactor("Set3", domain = c("Baetidae",
 "Polymitarcyidae"))
 
 leaflet(data = sd, width = "100%") %>%
- # setView(-46.8, -20.40, zoom = 7) %>%
+ setView(-46.8, -18.40, zoom = 4) %>%
   addProviderTiles("Esri.WorldImagery", group = "Aerial") %>%
   addProviderTiles("OpenTopoMap", group = "Terrain") %>%
   addScaleBar("bottomright") %>%
@@ -117,6 +117,31 @@ leaflet(data = sd, width = "100%") %>%
     weight = 0.5,
     label = paste(dat1$family, "- Details"),
     fillColor = ~ pal(family),
+    
+    
+    popup = paste(
+      "<h3>Specimen details</h3>",
+      "Family:", dat1$"family", "<br>",
+      
+      #"Genera:", dat1$"genera", "</i>", "<br>",
+       "Species:", dat1$"species_name", "<br>",
+      "Author:", dat1$"author", "<br>",
+      "Datum:", dat1$"datum", "<br>",
+      "Geolocation:", dat1$"geolocation", "<br>",
+        "Georeference:", dat1$"georeference", "<br>",
+        "Geolocation:", dat1$"geolocation", "<br>",
+        #"UC Federal", dat1$"UC_federal", "<br>",
+        #"UC non-federal:", dat1$"UC_nofederal", "<br>",
+        "Geolocation:", dat1$"geolocation", "<br>",
+      #"RPPN:", dat1$"RPPN", "<br>",
+      #"Country:", dat1$"country", "<br>",
+      #"State:", dat1$"state", "<br>",
+      "Municipality:", dat1$"municipality", "<br>",
+      "Title:", dat1$"title", "<br>",
+      "Literature source:", dat1$"author_record", "<br>",
+      "Publication year:", dat1$"year_record", "<br>"
+      
+    )
 
   ) %>%
   addLegend("bottomleft",
@@ -133,8 +158,8 @@ leaflet(data = sd, width = "100%") %>%
     activeColor = "#3D535D",
     completedColor = "#7D4479") %>% 
   addEasyButton(easyButton(
-    icon="fa-globe", title="Zoom to Level 3",
-    onClick=JS("function(btn, map){ map.setZoom(3); }"))) 
+    icon="fa-globe", title="Zoom to Level 4",
+    onClick=JS("function(btn, map){ map.setZoom(4); }"))) 
 ```
 
 
@@ -149,9 +174,16 @@ dat_table <- dat1 %>%
     
   
 datatable(dat_table,
-  extensions = c("Buttons", "ColReorder"),
+  extensions = c("Buttons"),
   escape = FALSE, rownames = FALSE,
   class = "cell-border stripe",
+    options = list(
+   extensions = 'Buttons', options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  ) 
+    
+  )
  
 )
 ```
@@ -200,6 +232,11 @@ Column {.tabset}
 ### How to use it
 
 
-Under development.
+![](https://www.youtube.com/embed/FLNtOcxglXQ)
 
+<div align="center">
+
+
+<iframe width="1080" height="630" src="https://www.youtube.com/embed/FLNtOcxglXQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
 
