@@ -1,0 +1,55 @@
+---
+title: "Bibliographic information"
+output:
+  distill::distill_article
+---
+
+```{r load data, message=FALSE, warning=FALSE, include=FALSE}
+
+library(gsheet)
+library(tidyverse)
+library(crosstalk)
+library(DT)
+library(ggthemes)
+library(janitor)
+library(cowplot)
+library(plotly)
+
+Sys.setlocale("LC_ALL", "pt_BR.UTF-8")
+
+
+dat1 <- gsheet2tbl("https://docs.google.com/spreadsheets/d/1_FKOEwXyNBgc8MnzMVoQvFsl1Llae_VGNjgj5K0CaH8/edit?usp=sharing")
+
+
+
+
+set.seed(1000)
+dat1$lat <- round(jitter(dat1$lat, factor = 1, amount = 0.001), 4)
+dat1$lon <- round(jitter(dat1$lon, factor = 1, amount = 0.001), 4)
+```
+
+```{r all table, echo=FALSE}
+dat_table <- dat1 %>%
+  select(species_name,  author_record, title, year_record)
+sd <- SharedData$new(dat_table)
+```
+
+<font size = 3>All records of the database can be viewed [in this spreadsheet](https://docs.google.com/spreadsheets/d/1_FKOEwXyNBgc8MnzMVoQvFsl1Llae_VGNjgj5K0CaH8/edit?usp=sharing).</font>
+
+```{r echo=FALSE, layout="l-page"}
+library(crosstalk)
+bscols(
+  filter_slider("year", "Year of record", sd, ~year_record, round = TRUE),
+  filter_select("Species", "Species", sd, ~species_name)
+)
+```
+
+```{r echo=FALSE, layout="l-page"}
+datatable(sd, rownames = FALSE,
+           extensions = c("Buttons"),
+             class = 'table-bordered table-condensed',
+           options = list(
+    dom = "Bfrtip", 
+    pageLength = 8,
+    buttons = c("excel")))
+```

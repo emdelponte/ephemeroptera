@@ -1,0 +1,21 @@
+name: "EphemBrazil"
+title: "EphemBrazil"
+theme: fitopatologia.css
+description: |
+  Pyblastr
+output_dir: "docs"
+navbar:
+  left:
+    - text: "Introduction"
+      href: index.html
+    - text: "Map view"
+      href: map.html
+    - text: "Distributional data"
+      href: grid.html
+    - text: "Bibliographic data"
+      href: grid_all.html
+    - text: "Chart views"
+      href: graphs_family.html
+     
+
+output: distill::distill_article

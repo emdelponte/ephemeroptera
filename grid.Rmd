@@ -1,0 +1,56 @@
+---
+title: "Species distribution"
+output:
+  distill::distill_article
+---
+
+```{r load data, message=FALSE, warning=FALSE, include=FALSE}
+
+library(gsheet)
+library(tidyverse)
+library(crosstalk)
+library(DT)
+library(ggthemes)
+library(janitor)
+library(cowplot)
+library(plotly)
+
+Sys.setlocale("LC_ALL", "pt_BR.UTF-8")
+
+
+dat1 <- gsheet2tbl("https://docs.google.com/spreadsheets/d/1_FKOEwXyNBgc8MnzMVoQvFsl1Llae_VGNjgj5K0CaH8/edit?usp=sharing")
+
+
+
+
+set.seed(1000)
+dat1$lat <- round(jitter(dat1$lat, factor = 1, amount = 0.001), 4)
+dat1$lon <- round(jitter(dat1$lon, factor = 1, amount = 0.001), 4)
+```
+
+```{r all table, echo=FALSE}
+dat_table <- dat1 %>%
+  select(family, species_name, lat, lon, state, municipality, biome, author_record, year_record)
+sd <- SharedData$new(dat_table)
+```
+
+All records of the database can be viewed [in this spreadsheet](https://docs.google.com/spreadsheets/d/1_FKOEwXyNBgc8MnzMVoQvFsl1Llae_VGNjgj5K0CaH8/edit?usp=sharing).
+
+```{r echo=FALSE, layout="l-page"}
+library(crosstalk)
+bscols(
+  filter_slider("year", "Year of record", sd, ~year_record, round = TRUE),
+  filter_select("family", "Family", sd, ~family),
+filter_select("Biome", "Biome", sd, ~biome))
+
+```
+
+```{r echo=FALSE, layout="l-page"}
+datatable(sd, rownames = FALSE,
+           extensions = c("Buttons"),
+             class = 'table-bordered table-condensed',
+           options = list(
+    dom = "Bfrtip", 
+    pageLength = 10,
+    buttons = c("excel")))
+```
