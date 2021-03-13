@@ -1,5 +1,5 @@
 ---
-title: "Graphs"
+title: "Summary of occurrences"
 output:
   distill::distill_article:
     toc: true
@@ -8,7 +8,8 @@ output:
 ---
 
 
-```{r setup, include=FALSE}
+
+```{r load data, message=FALSE, warning=FALSE, include=FALSE}
 
 library(gsheet)
 library(tidyverse)
@@ -22,30 +23,111 @@ library(plotly)
 Sys.setlocale("LC_ALL", "pt_BR.UTF-8")
 
 
-mg_prod <- gsheet2tbl("https://docs.google.com/spreadsheets/d/13xAflAQ-x78Vkq0O0jUEkUxHPq5G1R4gwqzillMxoTo/edit?usp=sharing")
+dat1 <- gsheet2tbl("https://docs.google.com/spreadsheets/d/1_FKOEwXyNBgc8MnzMVoQvFsl1Llae_VGNjgj5K0CaH8/edit?usp=sharing")
 
 
+set.seed(1000)
+dat1$lat <- round(jitter(dat1$lat, factor = 1, amount = 0.001), 4)
+dat1$lon <- round(jitter(dat1$lon, factor = 1, amount = 0.001), 4)
+```
 
-wb2<- gsheet2tbl("https://docs.google.com/spreadsheets/d/1W5nJWJwQJRKyUfWeiQNNA2xdQUsbEeCX6g6FH_i7i4o/edit#gid=532754791")
+```{r all table, echo=FALSE}
+dat_table <- dat1 %>%
+  select(family, species_name, lat, lon, state, municipality, biome, author_record, year_record)
+sd <- SharedData$new(dat_table)
+```
 
+The total number of records in the database is `r nrow(dat_table)`.
 
-wb_all <- wb2 %>%
-  filter(labcode != 0) %>%
-    mutate(id = case_when(
-    is.na(py_binomial) ~ "No",
-    TRUE ~ "Yes"
-  )) %>%
-  mutate(wheat = case_when(
-    host_binomial == "Triticum aestivum" ~ "Wheat",
-    TRUE ~ "Non-wheat"
-  ))
+### Family
 
-wb_all <- wb_all %>% 
-  dplyr::select(labcode, year, state_province, host_binomial, py_binomial, py_lineage, primer, seq_locus)
-
-
-sd <- SharedData$new(wb_all)
-sd2 <- SharedData$new(wb_all)
+```{r echo=FALSE}
+library(janitor)
+dat_table %>%
+  tabyl(family) %>% 
+  ggplot(aes(reorder(family, n), n))+
+  geom_col(fill = "lightblue")+
+  geom_text(aes(label = n),
+              position = position_stack(vjust = 1.03))+
+  coord_flip()+
+  theme_minimal_vgrid()+
+  labs(x = "", y = "Number of reports")
 
 ```
 
+### Biome
+
+```{r echo=FALSE}
+library(janitor)
+dat_table %>%
+  tabyl(biome) %>% 
+  ggplot(aes(reorder(biome, n), n))+
+  geom_col(fill = "lightblue")+
+  geom_text(aes(label = n),
+              position = position_stack(vjust = 1.03))+
+  coord_flip()+
+  theme_minimal_vgrid()+
+  labs(x = "", y = "Number of reports")
+
+```
+
+### BR State
+
+```{r echo=FALSE}
+library(janitor)
+dat_table %>%
+  tabyl(state) %>% 
+  ggplot(aes(reorder(state, n), n))+
+  geom_col(fill = "lightblue")+
+  geom_text(aes(label = n),
+              position = position_stack(vjust = 1.03))+
+  coord_flip()+
+  theme_minimal_vgrid()+
+  labs(x = "", y = "Number of reports")
+
+```
+
+
+
+### Year
+
+```{r echo=FALSE}
+library(janitor)
+dat_table %>%
+  tabyl(year_record) %>% 
+  ggplot(aes(year_record, n))+
+  geom_col(fill = "lightblue")+
+  geom_text(aes(label = n),
+              position = position_stack(vjust = 1.05))+
+  theme_minimal_hgrid()+
+  xlim(2000,2022)+
+  labs(x = "", y = "Number of reports")
+
+```
+
+### Latitude
+
+```{r echo=FALSE}
+library(janitor)
+dat_table %>%
+  tabyl(lat) %>% 
+  ggplot(aes(lat))+
+geom_histogram(fill = "lightblue", color = "white")+
+  theme_minimal_hgrid()+
+  labs(x = "Latitude", y = "Number of reports")
+
+```
+
+
+### Longitude
+
+```{r echo=FALSE}
+library(janitor)
+dat_table %>%
+  tabyl(lon) %>% 
+  ggplot(aes(lon))+
+geom_histogram(fill = "lightblue", color = "white")+
+  theme_minimal_hgrid()+
+  labs(x = "Longitude", y = "Number of reports")
+
+```

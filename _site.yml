@@ -2,20 +2,23 @@ name: "EphemBrazil"
 title: "EphemBrazil"
 theme: fitopatologia.css
 description: |
-  Pyblastr
+  EphemBrazil
 output_dir: "docs"
 navbar:
-  left:
-    - text: "Introduction"
+  right:
+    - text: "> About the database"
       href: index.html
-    - text: "Map view"
+    - text: "> Map view"
       href: map.html
-    - text: "Distributional data"
+    - text: "> Distributional data"
       href: grid.html
-    - text: "Bibliographic data"
+    - text: "> Bibliographic data"
       href: grid_all.html
-    - text: "Chart views"
+    - text: "> Summary graphs"
       href: graphs_family.html
-     
-
+  source_url: TRUE
+    
 output: distill::distill_article
+
+repository_url: https://github.com/emdelponte/ephemeroptera
+creative_commons: CC BY
